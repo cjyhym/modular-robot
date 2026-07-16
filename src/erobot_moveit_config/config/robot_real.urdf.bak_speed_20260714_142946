@@ -1,0 +1,333 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="erobot_urdf.SLDASM">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0.0015881 0.00094443 0.018998" rpy="0 0 0" />
+      <mass value="0.35305" />
+      <inertia ixx="0.00082331" ixy="5.3888E-07" ixz="-2.2314E-06" iyy="0.00086319" iyz="-2.9502E-06" izz="0.0015635" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/base_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="shoulder_Link">
+    <inertial>
+      <origin xyz="1.1222E-05 -0.0062922 -0.01361" rpy="0 0 0" />
+      <mass value="2.3685" />
+      <inertia ixx="0.0074954" ixy="1.1493E-06" ixz="-1.9337E-06" iyy="0.0072458" iyz="0.00021173" izz="0.0074693" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/shoulder_Link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/shoulder_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="shoulder_joint" type="revolute">
+    <origin xyz="0 0 0.123" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="shoulder_Link" />
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14" upper="3.14" effort="100.0" velocity="0.1" />
+  </joint>
+  <link name="arm1_Link">
+    <inertial>
+      <origin xyz="-3.2801E-06 0.22739 -0.010059" rpy="0 0 0" />
+      <mass value="4.5686" />
+      <inertia ixx="0.325" ixy="-2.6513E-06" ixz="1.7997E-06" iyy="0.012534" iyz="-0.0020586" izz="0.32453" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/arm1_Link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/arm1_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="arm1_joint" type="revolute">
+    <origin xyz="0 -0.165 0" rpy="1.5708 0 0" />
+    <parent link="shoulder_Link" />
+    <child link="arm1_Link" />
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14" upper="3.14" effort="100.0" velocity="0.1" />
+  </joint>
+  <link name="arm2_Link">
+    <inertial>
+      <origin xyz="-6.0386E-07 -0.21309 -0.0048843" rpy="0 0 0" />
+      <mass value="2.1903" />
+      <inertia ixx="0.13258" ixy="2.4856E-06" ixz="1.0911E-06" iyy="0.0036639" iyz="0.00054025" izz="0.13233" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/arm2_Link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/arm2_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="arm2_joint" type="revolute">
+    <origin xyz="0 0.612 -0.1344" rpy="3.1416 0 0" />
+    <parent link="arm1_Link" />
+    <child link="arm2_Link" />
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14" upper="3.14" effort="100.0" velocity="0.1" />
+  </joint>
+  <link name="wrist1_Link">
+    <inertial>
+      <origin xyz="7.724E-07 -0.0061575 0.0035179" rpy="0 0 0" />
+      <mass value="0.47856" />
+      <inertia ixx="0.00058778" ixy="-4.3569E-08" ixz="3.821E-08" iyy="0.0005162" iyz="-8.5921E-06" izz="0.00056535" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/wrist1_Link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/wrist1_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="wrist1_joint" type="revolute">
+    <origin xyz="0 -0.59 -0.098" rpy="0 0 0" />
+    <parent link="arm2_Link" />
+    <child link="wrist1_Link" />
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14" upper="3.14" effort="100.0" velocity="0.1" />
+  </joint>
+  <link name="wrist2_Link">
+    <inertial>
+      <origin xyz="-7.7256E-07 0.0061575 0.0035179" rpy="0 0 0" />
+      <mass value="0.47856" />
+      <inertia ixx="0.00058778" ixy="-4.3563E-08" ixz="-3.8204E-08" iyy="0.0005162" iyz="8.5921E-06" izz="0.00056535" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/wrist2_Link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/wrist2_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="wrist2_joint" type="revolute">
+    <origin xyz="0 -0.098 0" rpy="-1.5708 0 0" />
+    <parent link="wrist1_Link" />
+    <child link="wrist2_Link" />
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14" upper="3.14" effort="100.0" velocity="0.1" />
+  </joint>
+  <link name="end_Link">
+    <inertial>
+      <origin xyz="-6.8151E-09 0.0014084 0.015078" rpy="0 0 0" />
+      <mass value="0.099906" />
+      <inertia ixx="5.7102E-05" ixy="-3.4708E-11" ixz="-2.204E-13" iyy="6.2153E-05" iyz="2.3492E-07" izz="0.00010454" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/end_Link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://erobot_urdf_description/meshes/end_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="end_joint" type="revolute">
+    <origin xyz="0 0.0785 0" rpy="1.5708 0 0" />
+    <parent link="wrist2_Link" />
+    <child link="end_Link" />
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14" upper="3.14" effort="100.0" velocity="0.1" />
+  </joint>
+  <ros2_control name="ZeroErrSystem" type="system">
+    <hardware>
+      <plugin>zeroerr_ethercat_hardware_6dof/ZeroErrSystem</plugin>
+      <param name="master_index">0</param>
+      <param name="alias">0</param>
+      <param name="vendor_id">0x5a65726f</param>
+      <param name="product_code">0x29252</param>
+      <param name="operation_mode">8</param>
+      <param name="cycle_ns">1000000</param>
+      <param name="enable_drives">false</param>
+      <param name="max_following_error_rad">0.08726646259971647</param>
+      <param name="wc_error_limit">3000</param>
+    </hardware>
+    <joint name="shoulder_joint">
+      <param name="physical_joint">J1</param>
+      <param name="slave_position">0</param>
+      <param name="encoder_resolution">524288</param>
+      <param name="zero_count">262144</param>
+      <param name="direction">1</param>
+      <param name="lower">-3.14</param>
+      <param name="upper">3.14</param>
+      <param name="max_velocity">0.1</param>
+      <param name="max_effort">100.0</param>
+      <param name="rated_torque">178</param>  <!-- eRob142H120T-BM-18EN 额定转矩(N·m),0x6076实测178000mNm/1000 -->
+      <param name="digital_output_value">0</param>
+      <command_interface name="position">
+        <param name="min">-3.14</param>
+        <param name="max">3.14</param>
+      </command_interface>
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    <joint name="arm1_joint">
+      <param name="physical_joint">J2</param>
+      <param name="slave_position">1</param>
+      <param name="encoder_resolution">524288</param>
+      <param name="zero_count">262144</param>
+      <param name="direction">1</param>
+      <param name="lower">-3.14</param>
+      <param name="upper">3.14</param>
+      <param name="max_velocity">0.1</param>
+      <param name="max_effort">100.0</param>
+      <param name="rated_torque">178</param>  <!-- eRob142H120T-BM-18EN 额定转矩(N·m),0x6076实测178000mNm/1000 -->
+      <param name="digital_output_value">0</param>
+      <command_interface name="position">
+        <param name="min">-3.14</param>
+        <param name="max">3.14</param>
+      </command_interface>
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    <joint name="arm2_joint">
+      <param name="physical_joint">J3</param>
+      <param name="slave_position">2</param>
+      <param name="encoder_resolution">524288</param>
+      <param name="zero_count">262144</param>
+      <param name="direction">1</param>
+      <param name="lower">-3.14</param>
+      <param name="upper">3.14</param>
+      <param name="max_velocity">0.1</param>
+      <param name="max_effort">100.0</param>
+      <param name="rated_torque">238.75</param>  <!-- eRob110H120T-BM-18EN 额定转矩(N·m),0x6076实测238750mNm/1000 -->
+      <param name="digital_output_value">0</param>
+      <command_interface name="position">
+        <param name="min">-3.14</param>
+        <param name="max">3.14</param>
+      </command_interface>
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    <joint name="wrist1_joint">
+      <param name="physical_joint">J4</param>
+      <param name="slave_position">3</param>
+      <param name="encoder_resolution">524288</param>
+      <param name="zero_count">262144</param>
+      <param name="direction">-1</param>
+      <param name="lower">-3.14</param>
+      <param name="upper">3.14</param>
+      <param name="max_velocity">0.1</param>
+      <param name="max_effort">100.0</param>
+      <param name="rated_torque">31</param>  <!-- eRob80H100T-BM-18EN 额定转矩(N·m),0x6076实测31000mNm/1000 -->
+      <param name="digital_output_value">0</param>
+      <command_interface name="position">
+        <param name="min">-3.14</param>
+        <param name="max">3.14</param>
+      </command_interface>
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    <joint name="wrist2_joint">
+      <param name="physical_joint">J5</param>
+      <param name="slave_position">4</param>
+      <param name="encoder_resolution">524288</param>
+      <param name="zero_count">262144</param>
+      <param name="direction">-1</param>
+      <param name="lower">-3.14</param>
+      <param name="upper">3.14</param>
+      <param name="max_velocity">0.1</param>
+      <param name="max_effort">100.0</param>
+      <param name="rated_torque">31</param>  <!-- eRob80H100T-BM-18EN 额定转矩(N·m),0x6076实测31000mNm/1000 -->
+      <param name="digital_output_value">0</param>
+      <command_interface name="position">
+        <param name="min">-3.14</param>
+        <param name="max">3.14</param>
+      </command_interface>
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    <joint name="end_joint">
+      <param name="physical_joint">J6</param>
+      <param name="slave_position">5</param>
+      <param name="encoder_resolution">524288</param>
+      <param name="zero_count">262144</param>
+      <param name="direction">-1</param>
+      <param name="lower">-3.14</param>
+      <param name="upper">3.14</param>
+      <param name="max_velocity">0.1</param>
+      <param name="max_effort">100.0</param>
+      <param name="rated_torque">31</param>  <!-- eRob80H100T-BM-18EN 额定转矩(N·m),0x6076实测31000mNm/1000 -->
+      <param name="digital_output_value">0</param>
+      <command_interface name="position">
+        <param name="min">-3.14</param>
+        <param name="max">3.14</param>
+      </command_interface>
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+  </ros2_control>
+</robot>

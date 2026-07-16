@@ -1,0 +1,154 @@
+import os
+import yaml
+from glob import glob
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+
+import xacro
+
+
+def load_yaml(path):
+    if not os.path.exists(path):
+        print(f"[WARN] yaml 不存在: {path}")
+        return {}
+    with open(path, "r") as f:
+        return yaml.safe_load(f) or {}
+
+
+def load_text_or_xacro(path):
+    if path is None or not os.path.exists(path):
+        raise RuntimeError(f"URDF/SRDF 文件不存在: {path}")
+    print(f"[INFO] 加载文件: {path}")
+    if path.endswith(".xacro"):
+        return xacro.process_file(path).toxml()
+    with open(path, "r") as f:
+        return f.read()
+
+
+def find_first(config_dir, patterns):
+    for pattern in patterns:
+        files = glob(os.path.join(config_dir, pattern))
+        if files:
+            return files[0]
+    return None
+
+
+def generate_launch_description():
+    moveit_config_pkg = os.environ.get("MOVEIT_CONFIG_PKG", "erobot_moveit_config")
+    moveit_share = get_package_share_directory(moveit_config_pkg)
+    config_dir = os.path.join(moveit_share, "config")
+
+    urdf_path = os.environ.get("ROBOT_URDF", "")
+    if urdf_path == "":
+        urdf_path = find_first(config_dir, ["*.urdf.xacro", "*.urdf"])
+    srdf_path = os.environ.get("ROBOT_SRDF", "")
+    if srdf_path == "":
+        srdf_path = find_first(config_dir, ["*.srdf.xacro", "*.srdf"])
+
+    robot_description = {"robot_description": load_text_or_xacro(urdf_path)}
+    robot_description_semantic = {"robot_description_semantic": load_text_or_xacro(srdf_path)}
+    kinematics_yaml = {"robot_description_kinematics": load_yaml(os.path.join(config_dir, "kinematics.yaml"))}
+    joint_limits_yaml = {"robot_description_planning": load_yaml(os.path.join(config_dir, "joint_limits.yaml"))}
+
+    ompl_yaml = load_yaml(os.path.join(config_dir, "ompl_planning.yaml"))
+    planning_pipelines_config = {
+        "planning_pipelines": ["ompl"],
+        "default_planning_pipeline": "ompl",
+        "ompl": {
+            "planning_plugin": "ompl_interface/OMPLPlanner",
+            "request_adapters": (
+                "default_planner_request_adapters/AddTimeOptimalParameterization "
+                "default_planner_request_adapters/FixWorkspaceBounds "
+                "default_planner_request_adapters/FixStartStateBounds "
+                "default_planner_request_adapters/FixStartStateCollision "
+                "default_planner_request_adapters/FixStartStatePathConstraints"
+            ),
+            "start_state_max_bounds_error": 0.1,
+        },
+    }
+    planning_pipelines_config["ompl"].update(ompl_yaml)
+
+    moveit_controllers_yaml = load_yaml(os.path.join(config_dir, "moveit_controllers.yaml"))
+    trajectory_execution = {
+        "moveit_manage_controllers": True,
+        "trajectory_execution.allowed_execution_duration_scaling": 1.2,
+        "trajectory_execution.allowed_goal_duration_margin": 0.5,
+        "trajectory_execution.allowed_start_tolerance": 0.01,
+    }
+    planning_scene_monitor_parameters = {
+        "planning_scene_monitor_options": {
+            "name": "planning_scene_monitor",
+            "robot_description": "robot_description",
+            "joint_state_topic": "/joint_states",
+            "attached_collision_object_topic": "/moveit_cpp/planning_scene_monitor",
+            "publish_planning_scene_topic": "/moveit_cpp/publish_planning_scene",
+            "monitored_planning_scene_topic": "/moveit_cpp/monitored_planning_scene",
+            "wait_for_initial_state_timeout": 10.0,
+        }
+    }
+    plan_request_params = {
+        "plan_request_params": {
+            "planning_attempts": 5,
+            "planning_pipeline": "ompl",
+            "planner_id": "RRTConnectkConfigDefault",
+            "max_velocity_scaling_factor": 0.3,
+            "max_acceleration_scaling_factor": 0.2,
+            "planning_time": 5.0,
+        }
+    }
+
+    return LaunchDescription([
+        DeclareLaunchArgument("group", default_value="arm"),
+        DeclareLaunchArgument("base", default_value="base_link"),
+        DeclareLaunchArgument("tip", default_value="end_Link"),
+
+        DeclareLaunchArgument("arc_plane", default_value="xy"),
+        DeclareLaunchArgument("arc_center_x", default_value="0.30"),
+        DeclareLaunchArgument("arc_center_y", default_value="0.10"),
+        DeclareLaunchArgument("arc_center_z", default_value="0.60"),
+        DeclareLaunchArgument("arc_radius", default_value="0.10"),
+        DeclareLaunchArgument("arc_start_angle", default_value="0"),
+        DeclareLaunchArgument("arc_end_angle", default_value="180"),
+
+        DeclareLaunchArgument("step_size", default_value="0.005"),
+        DeclareLaunchArgument("execute", default_value="0"),
+
+        Node(
+            package="erobot_motion_client",
+            executable="arc_interpolation_client",
+            name="arc_interpolation_client",
+            output="screen",
+            arguments=[
+                "--group", LaunchConfiguration("group"),
+                "--base", LaunchConfiguration("base"),
+                "--tip", LaunchConfiguration("tip"),
+
+                "--arc-plane", LaunchConfiguration("arc_plane"),
+                "--arc-center-x", LaunchConfiguration("arc_center_x"),
+                "--arc-center-y", LaunchConfiguration("arc_center_y"),
+                "--arc-center-z", LaunchConfiguration("arc_center_z"),
+                "--arc-radius", LaunchConfiguration("arc_radius"),
+                "--arc-start-angle", LaunchConfiguration("arc_start_angle"),
+                "--arc-end-angle", LaunchConfiguration("arc_end_angle"),
+
+                "--step-size", LaunchConfiguration("step_size"),
+                "--execute", LaunchConfiguration("execute"),
+            ],
+            parameters=[
+                robot_description,
+                robot_description_semantic,
+                kinematics_yaml,
+                joint_limits_yaml,
+                planning_pipelines_config,
+                moveit_controllers_yaml,
+                trajectory_execution,
+                planning_scene_monitor_parameters,
+                plan_request_params,
+            ],
+        )
+    ])

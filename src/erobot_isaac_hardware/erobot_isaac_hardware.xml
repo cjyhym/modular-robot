@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<library path="erobot_isaac_hardware">
+  <class
+    name="erobot_isaac_hardware/IsaacSimSystem"
+    type="erobot_isaac_hardware::IsaacSimSystem"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Topic-based ros2_control SystemInterface for NVIDIA Isaac Sim.
+    </description>
+  </class>
+</library>

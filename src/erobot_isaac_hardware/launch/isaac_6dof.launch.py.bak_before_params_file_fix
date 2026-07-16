@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+
+from ament_index_python.packages import (
+    get_package_share_directory,
+)
+
+from launch import LaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    TimerAction,
+)
+from launch.substitutions import LaunchConfiguration
+
+from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
+
+
+def generate_launch_description():
+    use_sim_time = LaunchConfiguration("use_sim_time")
+
+    state_broadcaster = LaunchConfiguration(
+        "state_broadcaster"
+    )
+
+    trajectory_controller = LaunchConfiguration(
+        "trajectory_controller"
+    )
+
+    use_sim_time_value = ParameterValue(
+        use_sim_time,
+        value_type=bool,
+    )
+
+    description_share = Path(
+        get_package_share_directory(
+            "erobot_urdf_description"
+        )
+    )
+
+    hardware_share = Path(
+        get_package_share_directory(
+            "erobot_isaac_hardware"
+        )
+    )
+
+    urdf_path = (
+        description_share
+        / "urdf"
+        / "robot_isaac.urdf"
+    )
+
+    controller_path = (
+        hardware_share
+        / "config"
+        / "controllers_isaac.yaml"
+    )
+
+    robot_description = urdf_path.read_text(
+        encoding="utf-8"
+    )
+
+    robot_state_publisher = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        name="robot_state_publisher",
+        output="screen",
+        parameters=[
+            {
+                "robot_description": robot_description,
+                "use_sim_time": use_sim_time_value,
+            },
+        ],
+    )
+
+    controller_manager = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        name="controller_manager",
+        output="screen",
+        parameters=[
+            str(controller_path),
+            {
+                "robot_description": robot_description,
+                "use_sim_time": use_sim_time_value,
+            },
+        ],
+    )
+
+    state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        name="spawner_joint_state_broadcaster",
+        output="screen",
+        arguments=[
+            state_broadcaster,
+            "--controller-manager",
+            "/controller_manager",
+            "--controller-manager-timeout",
+            "60",
+            "--param-file",
+            str(controller_path),
+        ],
+    )
+
+    trajectory_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        name="spawner_arm_controller",
+        output="screen",
+        arguments=[
+            trajectory_controller,
+            "--controller-manager",
+            "/controller_manager",
+            "--controller-manager-timeout",
+            "60",
+            "--param-file",
+            str(controller_path),
+        ],
+    )
+
+    delayed_spawners = TimerAction(
+        period=2.0,
+        actions=[
+            state_broadcaster_spawner,
+            trajectory_controller_spawner,
+        ],
+    )
+
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            "use_sim_time",
+            default_value="true",
+            description="Use Isaac Sim /clock",
+        ),
+
+        DeclareLaunchArgument(
+            "state_broadcaster",
+            default_value="joint_state_broadcaster",
+        ),
+
+        DeclareLaunchArgument(
+            "trajectory_controller",
+            default_value="arm_controller",
+        ),
+
+        robot_state_publisher,
+        controller_manager,
+        delayed_spawners,
+    ])

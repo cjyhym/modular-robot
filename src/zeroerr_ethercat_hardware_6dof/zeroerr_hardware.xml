@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<library path="zeroerr_ethercat_hardware_6dof">
+
+  <class
+    name="zeroerr_ethercat_hardware_6dof/ZeroErrSystem"
+    type="zeroerr_ethercat_hardware_6dof::ZeroErrSystem"
+    base_class_type="hardware_interface::SystemInterface">
+
+    <description>
+      ZeroErr EtherCAT ros2_control SystemInterface.
+    </description>
+
+  </class>
+
+</library>

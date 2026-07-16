@@ -1,0 +1,37 @@
+# ROS2 build artifacts
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# Backup files
+*.before_*
+*.current_broken*
+
+# Upstream dependency
+ethercat_driver_ros2/
+
+# Binary meshes / large files
+*.STL
+*.stl
+*.dae
+
+# Other non-repo dirs
+eRob_IGH_EtherCAT/
+ethercat build/
+src-*.zip
+
+# Test artifacts
+*.pyc
+
+# ====== KEEP ======
+# !README.md
+# !zeroerr_ros2_env.sh

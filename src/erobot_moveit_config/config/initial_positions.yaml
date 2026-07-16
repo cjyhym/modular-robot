@@ -1,0 +1,9 @@
+# Default initial positions for erobot_urdf.SLDASM's ros2_control fake system
+
+initial_positions:
+  arm1_joint: 0
+  arm2_joint: 0
+  end_joint: 0
+  shoulder_joint: 0
+  wrist1_joint: 0
+  wrist2_joint: 0

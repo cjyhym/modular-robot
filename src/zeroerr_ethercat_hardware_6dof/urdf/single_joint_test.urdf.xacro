@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+
+<robot
+  xmlns:xacro="http://www.ros.org/wiki/xacro"
+  name="zeroerr_single_joint">
+
+  <link name="base_link"/>
+
+  <link name="link6">
+    <visual>
+      <geometry>
+        <cylinder radius="0.03" length="0.20"/>
+      </geometry>
+      <origin xyz="0 0 0.10" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="joint6" type="revolute">
+    <parent link="base_link"/>
+    <child link="link6"/>
+
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+
+    <limit
+      lower="-3.1415926"
+      upper="3.1415926"
+      effort="100.0"
+      velocity="0.10"/>
+  </joint>
+
+  <ros2_control name="ZeroErrSystem" type="system">
+
+    <hardware>
+      <plugin>zeroerr_ethercat_hardware/ZeroErrSystem</plugin>
+
+      <param name="master_index">0</param>
+      <param name="slave_alias">0</param>
+      <param name="slave_position">5</param>
+
+      <param name="vendor_id">0x5a65726f</param>
+      <param name="product_code">0x00029252</param>
+
+      <param name="operation_mode">8</param>
+
+      <param name="counts_per_revolution">524288</param>
+      <param name="zero_offset_counts">262144</param>
+      <param name="direction">1.0</param>
+      <param name="gear_ratio">1.0</param>
+
+      <!-- 最大指令速度：2 deg/s -->
+      <param name="max_command_velocity">0.034906585</param>
+
+      <!-- 最大允许目标跳变：5 deg -->
+      <param name="max_command_jump">0.087266463</param>
+
+      <!-- 连续100个有效通信周期后才允许运动 -->
+      <param name="required_valid_cycles">100</param>
+    </hardware>
+
+    <joint name="joint6">
+
+      <command_interface name="position">
+        <param name="min">-3.1415926</param>
+        <param name="max">3.1415926</param>
+      </command_interface>
+
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+
+    </joint>
+
+  </ros2_control>
+
+</robot>

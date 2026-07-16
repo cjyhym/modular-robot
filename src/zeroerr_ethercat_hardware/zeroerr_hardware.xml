@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<library path="zeroerr_ethercat_hardware">
+
+  <class
+    name="zeroerr_ethercat_hardware/ZeroErrSystem"
+    type="zeroerr_ethercat_hardware::ZeroErrSystem"
+    base_class_type="hardware_interface::SystemInterface">
+
+    <description>
+      ROS 2 control hardware interface for a ZeroErr EtherCAT joint
+      using the EtherLab master.
+    </description>
+
+  </class>
+
+</library>

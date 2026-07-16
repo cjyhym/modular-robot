@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="erobot_urdf.SLDASM">
+  <group name="arm">
+    <chain base_link="base_link" tip_link="end_Link" />
+  </group>
+  <group_state name="home" group="arm">
+    <joint name="arm1_joint" value="0" />
+    <joint name="arm2_joint" value="0" />
+    <joint name="end_joint" value="0" />
+    <joint name="shoulder_joint" value="0" />
+    <joint name="wrist1_joint" value="0" />
+    <joint name="wrist2_joint" value="0" />
+  </group_state>
+  <virtual_joint name="world_joint" type="fixed" parent_frame="world" child_link="base_link" />
+  <disable_collisions link1="arm1_Link" link2="arm2_Link" reason="Adjacent" />
+  <disable_collisions link1="arm1_Link" link2="base_link" reason="Never" />
+  <disable_collisions link1="arm1_Link" link2="shoulder_Link" reason="Adjacent" />
+  <disable_collisions link1="arm2_Link" link2="wrist1_Link" reason="Adjacent" />
+  <disable_collisions link1="arm2_Link" link2="wrist2_Link" reason="Never" />
+  <disable_collisions link1="base_link" link2="shoulder_Link" reason="Adjacent" />
+  <disable_collisions link1="end_Link" link2="wrist1_Link" reason="Never" />
+  <disable_collisions link1="end_Link" link2="wrist2_Link" reason="Adjacent" />
+  <disable_collisions link1="wrist1_Link" link2="wrist2_Link" reason="Adjacent" />
+  <group_state name="zero" group="arm">
+    <joint name="shoulder_joint" value="0.0" />
+    <joint name="arm1_joint" value="0.0" />
+    <joint name="arm2_joint" value="0.0" />
+    <joint name="wrist1_joint" value="0.0" />
+    <joint name="wrist2_joint" value="0.0" />
+    <joint name="end_joint" value="0.0" />
+  </group_state>
+</robot>

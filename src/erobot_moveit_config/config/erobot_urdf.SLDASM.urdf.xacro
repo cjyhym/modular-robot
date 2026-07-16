@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="erobot_urdf.SLDASM">
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+
+    <!-- Import erobot_urdf.SLDASM urdf file -->
+    <xacro:include filename="$(find erobot_urdf_description)/urdf/robot_real.urdf" />
+
+    <!-- Import control_xacro -->
+    <xacro:include filename="erobot_urdf.SLDASM.ros2_control.xacro" />
+
+
+    <xacro:erobot_urdf_SLDASM_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+
+</robot>
