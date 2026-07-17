@@ -2,7 +2,9 @@
 import argparse
 import copy
 import csv
+from datetime import datetime
 import math
+import os
 import sys
 
 import numpy as np
@@ -32,7 +34,7 @@ JOINT_NAMES = [
 
 DEFAULT_STEP_SIZE = 0.005          # m
 DEFAULT_MAX_CARTESIAN_VEL = 0.02   # m/s
-DEFAULT_JOINT_VELOCITY = 0.3       # rad/s (10% scaling)
+DEFAULT_JOINT_VELOCITY = 0.1       # rad/s (10% scaling)
 DEFAULT_MIN_DURATION = 3.0         # s
 
 
@@ -841,8 +843,15 @@ class ArcInterpolationClient(Node):
 
         # Step 5.5: 导出 CSV + 验证
         if self.args.export_csv is not None:
-            self.export_trajectory(waypoints, all_joint_solutions, traj, self.args.export_csv)
-            self.verify_cartesian_path(all_joint_solutions, self.args.export_csv)
+            csv_base = self.args.export_csv
+            if os.path.isabs(csv_base):
+                csv_path = csv_base
+            else:
+                os.makedirs(self.args.export_dir, exist_ok=True)
+                ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+                csv_path = os.path.join(self.args.export_dir, f"{ts}_{csv_base}")
+            self.export_trajectory(waypoints, all_joint_solutions, traj, csv_path)
+            self.verify_cartesian_path(all_joint_solutions, csv_path)
 
         # Step 6: 执行或打印
         if self.args.execute == 1:
@@ -850,7 +859,7 @@ class ArcInterpolationClient(Node):
             if self.args.record_joint_states is not None:
                 record_path = self.args.record_joint_states
             elif self.args.export_csv is not None:
-                record_path = self.args.export_csv.replace(".csv", "") + "_recorded_joints.csv"
+                record_path = csv_path.replace(".csv", "") + "_recorded_joints.csv"
             self.send_trajectory(traj, record_path=record_path)
         else:
             self.get_logger().info("当前 execute=0，只完成路径规划与IK反解，没有下发给真实机器人。")
@@ -921,8 +930,16 @@ def parse_args():
     parser.add_argument("--execute", type=int, default=0)
 
     parser.add_argument(
+        "--export-dir",
+        type=str,
+        default=os.path.expanduser("~/codex_scripts/exports"),
+        help="CSV 导出目录，默认 ~/codex_scripts/exports/；传绝对路径时 --export-csv 优先"
+    )
+
+    parser.add_argument(
         "--export-csv", type=str, default=None,
-        help="导出路径点 CSV（含位置/速度/加速度），执行时自动录制"
+        help="导出路径点到 CSV（如传入 'test' → {export_dir}/{timestamp}_test.csv）；"
+             "传入绝对路径则直接使用（兼容旧用法）"
     )
     parser.add_argument(
         "--record-joint-states", type=str, default=None,

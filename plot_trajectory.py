@@ -2,6 +2,7 @@
 """画直线插补轨迹，对比规划 vs 实际（笛卡尔路径 + 关节角）"""
 import argparse
 import csv
+import glob
 import os
 import matplotlib
 matplotlib.use("TkAgg")
@@ -17,6 +18,21 @@ def load_csv(path):
             for key, val in row.items():
                 data.setdefault(key, []).append(float(val))
     return data
+
+
+EXPORT_DIR = os.path.expanduser("~/codex_scripts/exports")
+
+
+def _resolve(path, suffix):
+    """如果 path 的文件存在直接返回；否则在 EXPORT_DIR 找最新匹配文件。"""
+    if path and os.path.exists(path):
+        return path
+    # 在 exports 目录搜索 *{suffix} 文件，取最新
+    if os.path.isdir(EXPORT_DIR):
+        matches = sorted(glob.glob(os.path.join(EXPORT_DIR, f"*{suffix}")))
+        if matches:
+            return matches[-1]
+    return path  # 回退原路径（后续 os.path.exists 会跳过）
 
 
 def main():
@@ -44,6 +60,12 @@ def main():
         help="实际录制关节状态 CSV (默认 /tmp/linear_path_recorded_joints.csv)"
     )
     args = parser.parse_args()
+
+    # 自动在 exports 目录搜索（优先 /tmp 原始路径，找不到再搜 exports）
+    args.cartesian = _resolve(args.cartesian, "_cartesian.csv")
+    args.actual_cartesian = _resolve(args.actual_cartesian, "_actual_cartesian.csv")
+    args.joints = _resolve(args.joints, "_joints.csv")
+    args.recorded = _resolve(args.recorded, "_recorded_joints.csv")
 
     JOINT_NAMES = [
         "shoulder_joint", "arm1_joint", "arm2_joint",

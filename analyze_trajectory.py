@@ -2,6 +2,7 @@
 """分析规划 vs 实际关节轨迹的偏差，输出逐点位置/速度/加速度误差和统计摘要。"""
 import argparse
 import csv
+import glob
 import os
 import sys
 import numpy as np
@@ -11,6 +12,20 @@ JOINT_NAMES = [
     "shoulder_joint", "arm1_joint", "arm2_joint",
     "wrist1_joint", "wrist2_joint", "end_joint",
 ]
+
+
+EXPORT_DIR = os.path.expanduser("~/codex_scripts/exports")
+
+
+def _resolve(path, suffix):
+    """如果 path 的文件存在直接返回；否则在 EXPORT_DIR 找最新匹配文件。"""
+    if path and os.path.exists(path):
+        return path
+    if os.path.isdir(EXPORT_DIR):
+        matches = sorted(glob.glob(os.path.join(EXPORT_DIR, f"*{suffix}")))
+        if matches:
+            return matches[-1]
+    return path
 
 
 def load_csv(path):
@@ -169,10 +184,16 @@ def main():
     )
     args = parser.parse_args()
 
+    # 自动在 exports 目录搜索（优先 /tmp 原始路径，找不到再搜 exports）
+    args.joints = _resolve(args.joints, "_joints.csv")
+    args.recorded = _resolve(args.recorded, "_recorded_joints.csv")
+    # output 不自动重定向 —— 保持用户指定或默认 /tmp/
+
     # 检查文件
     if not os.path.exists(args.joints):
         print(f"错误: 规划文件不存在: {args.joints}")
-        print("  请先运行 linear_interpolation_client 并指定 --export-csv")
+        print(f"  请先运行 linear_interpolation_client 并指定 --export-csv，"
+              f"或检查 {EXPORT_DIR}")
         sys.exit(1)
     if not os.path.exists(args.recorded):
         print(f"错误: 录制文件不存在: {args.recorded}")
