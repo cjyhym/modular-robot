@@ -25,7 +25,7 @@ EXPORT_DIR = os.path.expanduser("~/codex_scripts/exports")
 
 def _resolve(path, suffix):
     """如果 path 的文件存在直接返回；否则在 EXPORT_DIR 找最新匹配文件。"""
-    if path and os.path.exists(path):
+    if path and not path.startswith("/tmp/") and os.path.exists(path):
         return path
     # 在 exports 目录搜索 *{suffix} 文件，取最新
     if os.path.isdir(EXPORT_DIR):

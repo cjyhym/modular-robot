@@ -208,9 +208,9 @@ def main(args=None):
     # ============================================================
 
     target_deg = [
-        0.0,     # J1 shoulder_joint
-        0,   # J2 arm1_joint
-        0,    # J3 arm2_joint
+        -10,     # J1 shoulder_joint
+        -30,   # J2 arm1_joint
+        -15,    # J3 arm2_joint
         0.0,     # J4 wrist1_joint
         0,    # J5 wrist2_joint
         0.0,     # J6 end_joint
