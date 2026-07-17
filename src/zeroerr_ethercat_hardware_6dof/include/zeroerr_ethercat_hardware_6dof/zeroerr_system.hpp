@@ -2,6 +2,7 @@
 
 #include <ecrt.h>
 
+#include <chrono>
 #include <cstdint>
 #include <limits>
 #include <string>
@@ -187,6 +188,20 @@ private:
   std::thread sdo_poll_thread_;
   std::atomic<bool> sdo_poll_running_{false};
   void sdo_poll_loop();
+
+  // 周期抖动测量
+  std::chrono::steady_clock::time_point last_read_time_{};
+  int64_t cycle_count_{0};
+  double jitter_min_us_{std::numeric_limits<double>::max()};
+  double jitter_max_us_{0.0};
+  double jitter_sum_us_{0.0};
+
+  // PDO round-trip 测量
+  std::chrono::steady_clock::time_point pdort_write_time_{};
+  int64_t pdort_count_{0};
+  double pdort_min_us_{std::numeric_limits<double>::max()};
+  double pdort_max_us_{0.0};
+  double pdort_sum_us_{0.0};
 };
 
 }  // namespace zeroerr_ethercat_hardware_6dof

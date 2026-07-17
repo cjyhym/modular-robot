@@ -912,6 +912,42 @@ hardware_interface::return_type ZeroErrSystem::read(
     return hardware_interface::return_type::OK;
   }
 
+  // 周期抖动测量
+  auto now = std::chrono::steady_clock::now();
+  if (last_read_time_.time_since_epoch().count() > 0) {
+    auto interval_us = std::chrono::duration_cast<std::chrono::microseconds>(now - last_read_time_).count();
+    double jitter_us = std::abs(static_cast<double>(interval_us) - (cycle_ns_ / 1000.0));
+    cycle_count_++;
+    jitter_min_us_ = std::min(jitter_min_us_, jitter_us);
+    jitter_max_us_ = std::max(jitter_max_us_, jitter_us);
+    jitter_sum_us_ += jitter_us;
+    // 每 60 秒输出一次抖动统计
+    if (cycle_count_ % 10000 == 0) {
+      double mean_us = jitter_sum_us_ / static_cast<double>(cycle_count_);
+      RCLCPP_INFO(logger_,
+        "JITTER %ld cycles: samples=%ld min=%.1fus max=%.1fus mean=%.1fus",
+        cycle_count_,
+        cycle_count_, jitter_min_us_, jitter_max_us_, mean_us);
+      // 不重置，累计统计全程
+    }
+  }
+  last_read_time_ = now;
+
+  // PDO round-trip 测量（write() 发送 → 下次 read() 收到的时间）
+  if (pdort_write_time_.time_since_epoch().count() > 0) {
+    auto pdort_us = std::chrono::duration_cast<std::chrono::microseconds>(now - pdort_write_time_).count();
+    pdort_count_++;
+    pdort_min_us_ = std::min(pdort_min_us_, static_cast<double>(pdort_us));
+    pdort_max_us_ = std::max(pdort_max_us_, static_cast<double>(pdort_us));
+    pdort_sum_us_ += pdort_us;
+    if (pdort_count_ % 10000 == 0) {
+      double mean_us = pdort_sum_us_ / static_cast<double>(pdort_count_);
+      RCLCPP_INFO(logger_,
+        "PDO_RT %ld cycles: samples=%ld min=%.1fus max=%.1fus mean=%.1fus",
+        pdort_count_, pdort_count_, pdort_min_us_, pdort_max_us_, mean_us);
+    }
+  }
+
   ecrt_master_receive(master_);
   ecrt_domain_process(domain_);
   ecrt_domain_state(
@@ -1294,6 +1330,7 @@ hardware_interface::return_type ZeroErrSystem::write(
   }
 
   send_process_data();
+  pdort_write_time_ = std::chrono::steady_clock::now();
 
   /*
    * 只读模式下即使WC暂时不完整，
